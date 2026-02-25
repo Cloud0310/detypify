@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-slim
     outputs:
       should_run: ${{ steps.check.outputs.changed }}
-    permissions: 
+    permissions:
       contents: write
     env:
       GH_TOKEN: ${{ secrets.PAT_TOKEN }} # Required for 'gh variable set'
@@ -107,7 +107,7 @@ jobs:
         run: |
           python -m pip install --upgrade kaggle --user
           OUTPUT_NOTEBOOK="script.ipynb"
-          
+
           # Notice the escaped variables (\$) in the third block so GitHub Actions doesn't pre-evaluate them
           cat <<EOM > "$OUTPUT_NOTEBOOK"
           {
@@ -160,22 +160,22 @@ jobs:
         shell: bash
         run: |
           kaggle kernels init -p .
-          
+
           KAGGLE_USERNAME=$(jq -r '.id' kernel-metadata.json | cut -d'/' -f1)
-          
+
           KERNEL_SLUG=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed 's/ /-/g')
           KERNEL_ID="$KAGGLE_USERNAME/$KERNEL_SLUG"
-          
+
           echo "KERNEL_ID=$KERNEL_ID" >> $GITHUB_ENV
-          
+
           jq --arg id "$KERNEL_ID" \
              --arg title "$TITLE" \
              --arg code_file "script.ipynb" \
              '.id = $id | .title = $title | .code_file = $code_file | .language = "python" | .kernel_type = "notebook" | .enable_gpu = true | .enable_internet = true' \
              kernel-metadata.json > kernel-metadata.json.tmp && mv kernel-metadata.json.tmp kernel-metadata.json
-             
+
           cat kernel-metadata.json
-          
+
           # 6. Push the kernel
           kaggle kernels push -p . --accelerator 'NvidiaTeslaT4'
 
@@ -183,14 +183,14 @@ jobs:
         shell: bash
         run: |
           echo "Checking status for $KERNEL_ID..."
-          
+
           MAX_RETRIES=240
           COUNT=0
-          
+
           while [ $COUNT -lt $MAX_RETRIES ]; do
               status=$(kaggle kernels status "$KERNEL_ID" 2>&1)
               echo "Status: $status"
-          
+
               if [[ "$status" == *"ERROR"* || "$status" == *"CANCEL"* ]]; then
                   echo "::error::Kernel execution failed."
                   exit 1
@@ -198,11 +198,11 @@ jobs:
                   echo "Kernel execution completed successfully!"
                   exit 0
               fi
-              
+
               sleep 60
               COUNT=$((COUNT+1))
           done
-          
+
           echo "::error::Kernel execution timed out after 4 hours."
           exit 1
 
