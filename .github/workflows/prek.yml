@@ -1,0 +1,19 @@
+name: Prek check
+
+on:
+  push:
+    branches: [main, "*dev"]
+  pull_request:
+    branches: [main, "*dev"]
+    types: [opened, synchronize]
+  workflow_dispatch:
+
+jobs:
+  prek:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Prek check
+        uses: j178/prek-action@v1
