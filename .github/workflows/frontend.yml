@@ -15,14 +15,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Prepare train folder
-        run: |
-          mkdir -p train
-          echo '{}' > train/infer.json
-          echo '[]' > train/contrib.json
-          echo '??' > train/model.onnx
-        working-directory: frontend/service
-
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -32,12 +24,26 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: latest
-          cache: 'pnpm'
+          cache: pnpm
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
+
+      - name: Cache postinstall artifacts
+        uses: actions/cache@v5
+        with:
+          path: frontend/ui/.cache
+          key: ${{ runner.os }}-frontend-postinstall-cache
+
+      - name: Prepare train folder
+        run: |
+          mkdir -p train
+          echo '[]' > train/infer.json
+          echo '{}' > train/contrib.json
+          echo '??' > train/model.onnx
+        working-directory: frontend/service
 
       - name: Install dependencies
         run: pnpm install
