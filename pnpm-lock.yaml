@@ -24,7 +24,7 @@ importers:
   frontend/service:
     dependencies:
       onnxruntime-web:
-        specifier: ^1.23.2
+        specifier: '=1.23.2'
         version: 1.23.2
     devDependencies:
       tsdown:
